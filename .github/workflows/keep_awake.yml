@@ -1,4 +1,3 @@
-APP_URL: https://knowledgebridge-baton-4wypsbmykahrre7aw2bavx.streamlit.app/
 name: Keep app awake
 
 # Opens the live app in a real browser every 6 hours so Streamlit never
