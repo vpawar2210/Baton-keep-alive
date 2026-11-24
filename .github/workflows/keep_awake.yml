@@ -1,0 +1,49 @@
+APP_URL: https://knowledgebridge-baton-4wypsbmykahrre7aw2bavx.streamlit.app/
+name: Keep app awake
+
+# Opens the live app in a real browser every 6 hours so Streamlit never
+# puts it to sleep (it sleeps after 12 hours without a visitor).
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:      # lets you press "Run workflow" by hand
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install browser
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Visit the app
+        env:
+          APP_URL: "https://knowledgebridge-baton-4wypsbmykahrre7aw2bavx.streamlit.app/"
+        run: |
+          python - <<'PY'
+          import os, re, sys, time
+          from playwright.sync_api import sync_playwright
+
+          URL = os.environ["APP_URL"]
+          WAKE = re.compile(r"get this app back up", re.I)
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+              page = browser.new_page()
+              page.goto(URL, wait_until="domcontentloaded", timeout=120000)
+              time.sleep(10)
+              btn = page.get_by_role("button", name=WAKE)
+              if btn.count() > 0:
+                  print("App was asleep - clicking the wake-up button")
+                  btn.first.click()
+                  time.sleep(60)          # give the app time to boot
+              else:
+                  print("App already awake")
+              time.sleep(30)              # stay connected so it counts as a real visit
+              print("Page title:", page.title())
+              browser.close()
+          PY
