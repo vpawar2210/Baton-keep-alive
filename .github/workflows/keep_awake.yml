@@ -4,7 +4,7 @@ name: Keep app awake
 # puts it to sleep (it sleeps after 12 hours without a visitor).
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 */2 * * *"
   workflow_dispatch:      # lets you press "Run workflow" by hand
 
 jobs:
